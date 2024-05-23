@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <optional>
 
 class Room {
 private:
@@ -79,11 +78,13 @@ private:
 
 public:
     void addRoom(const std::string& roomType, float pricePerNight) {
-        rooms.emplace(nextRoomNumber++, Room(nextRoomNumber, roomType, true, pricePerNight));
+        rooms.emplace(nextRoomNumber, Room(nextRoomNumber, roomType, true, pricePerNight));
+        nextRoomNumber++;
     }
 
     void addCustomer(const std::string& name, const std::string& contactInfo) {
-        customers.emplace(nextCustomerID++, Customer(nextCustomerID, name, contactInfo));
+        customers.emplace(nextCustomerID, Customer(nextCustomerID, name, contactInfo));
+        nextCustomerID++;
     }
 
     void bookRoom(int customerID, int roomNumber, const std::string& checkInDate, const std::string& checkOutDate) {
@@ -105,9 +106,8 @@ public:
             return;
         }
 
-        rooms[roomNumber].markAsBooked();
+        roomIt->second.markAsBooked();
         bookings.emplace(nextBookingID, Booking(nextBookingID, roomNumber, customerID, checkInDate, checkOutDate));
-        customers[customerID].displayDetails();
         std::cout << "Booking successful!" << std::endl;
 
         nextBookingID++;
@@ -139,6 +139,24 @@ public:
         }
         std::cout << "Check-out failed. Booking not found." << std::endl;
     }
+
+    void displayAllRooms() const {
+        for (const auto& pair : rooms) {
+            pair.second.displayDetails();
+        }
+    }
+
+    void displayAllCustomers() const {
+        for (const auto& pair : customers) {
+            pair.second.displayDetails();
+        }
+    }
+
+    void displayAllBookings() const {
+        for (const auto& pair : bookings) {
+            pair.second.displayDetails();
+        }
+    }
 };
 
 int main() {
@@ -150,6 +168,13 @@ int main() {
     h.checkOut(1);
     h.addCustomer("fz", "fe@gmail.com");
     h.bookRoom(2, 1, "05/04/2024", "10/04/2024");
-    
+
+    std::cout << "\nAll Rooms:\n";
+    h.displayAllRooms();
+    std::cout << "\nAll Customers:\n";
+    h.displayAllCustomers();
+    std::cout << "\nAll Bookings:\n";
+    h.displayAllBookings();
+
     return 0;
 }
